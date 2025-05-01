@@ -1,0 +1,180 @@
+Table usuario {
+  cpf               varchar   [pk]
+  nome              varchar
+  sobrenome         varchar
+  data_nascimento   date
+  endereco          varchar
+  sexo              varchar
+  telefone          varchar
+  email             varchar
+  senha             varchar
+  loc_id            int
+}
+
+Table localizacao {
+  loc_id    int      [pk, increment]
+  cidade    varchar
+  estado    varchar
+  pais      varchar
+  cep       varchar
+  bairro    varchar
+}
+
+Table ponto_interesse {
+  poi_id   int      [pk, increment]
+  nome     varchar
+  loc_id   int
+}
+
+Table locador {
+  cpf      varchar   [pk]      // herda de usuario
+}
+
+Table hospede {
+  cpf      varchar   [pk]      // herda de usuario
+}
+
+Table conta_bancaria {
+  numero_conta   varchar   [pk]
+  agencia        varchar
+  tipo_conta     varchar
+  locador_cpf    varchar
+}
+
+Table propriedade {
+  prop_id         int       [pk, increment]
+  nome            varchar
+  endereco        varchar
+  tipo            varchar   // 'CasaInteira' | 'QuartoPrivativo' | 'QuartoCompartilhado'
+  num_quartos     int
+  num_banheiros   int
+  preco_noite     decimal
+  max_hospedes    int
+  min_noites      int
+  max_noites      int
+  taxa_limpeza    decimal
+  checkin_hora    time
+  checkout_hora   time
+  locador_cpf     varchar
+  loc_id          int
+}
+
+Table disponibilidade {
+  disp_id     int      [pk, increment]
+  prop_id     int
+  data_inicio date
+  data_fim    date
+}
+
+Table quarto {
+  quarto_id          int      [pk, increment]
+  prop_id            int
+  num_camas          int
+  tipo_cama          varchar
+  banheiro_privativo boolean
+}
+
+Table comodidade {
+  comod_id   int     [pk, increment]
+  descricao  varchar
+}
+
+Table propriedade_comodidade {
+  prop_id   int
+  comod_id  int
+
+  Indexes {
+    (prop_id, comod_id) [pk]
+  }
+}
+
+Table regra {
+  regra_id   int     [pk, increment]
+  descricao  varchar
+}
+
+Table propriedade_regra {
+  prop_id   int
+  regra_id  int
+
+  Indexes {
+    (prop_id, regra_id) [pk]
+  }
+}
+
+Table reserva {
+  res_id                   int      [pk, increment]
+  hospede_cpf              varchar
+  prop_id                  int
+  data_reserva             date
+  data_checkin             date
+  data_checkout            date
+  num_hospedes             int
+  imposto_pago             decimal
+  preco_total              decimal
+  preco_total_impostos     decimal
+  taxa_limpeza             decimal
+  status                   varchar  // 'Confirmada' | 'Cancelada'
+  data_status              date
+}
+
+Table avaliacao {
+  aval_id           int       [pk, increment]
+  reserva_id        int
+  hospede_cpf       varchar
+  prop_id           int
+  texto             varchar
+  nota_limpeza      int
+  nota_estrutura    int
+  nota_comunicacao  int
+  nota_localizacao  int
+  nota_valor        int
+}
+
+Table mensagem {
+  msg_id             int      [pk, increment]
+  remetente_cpf      varchar
+  destinatario_cpf   varchar
+  ts                 datetime
+  texto              varchar
+  aval_id           int       // FK para a avaliação associada, se houver
+}
+
+
+Table foto {
+  foto_id           int       [pk, increment]
+  url               varchar
+  avaliacao_id      int       // FK para a avaliação que “inclui” esta foto
+}
+
+// —–– Relações (FKs) ——————————————————————————————————————————————————————————————————
+
+Ref: usuario.loc_id                > localizacao.loc_id
+Ref: ponto_interesse.loc_id        > localizacao.loc_id
+
+Ref: locador.cpf                   > usuario.cpf
+Ref: hospede.cpf                   > usuario.cpf
+
+Ref: propriedade.locador_cpf       > locador.cpf
+Ref: conta_bancaria.locador_cpf    > locador.cpf
+
+Ref: propriedade.prop_id           > disponibilidade.prop_id
+Ref: propriedade.prop_id           > quarto.prop_id
+
+Ref: propriedade_comodidade.prop_id > propriedade.prop_id
+Ref: propriedade_comodidade.comod_id > comodidade.comod_id
+
+Ref: propriedade_regra.prop_id     > propriedade.prop_id
+Ref: propriedade_regra.regra_id    > regra.regra_id
+
+Ref: reserva.hospede_cpf           > hospede.cpf
+Ref: reserva.prop_id               > propriedade.prop_id
+
+Ref: avaliacao.reserva_id          > reserva.res_id
+Ref: avaliacao.hospede_cpf         > hospede.cpf
+Ref: avaliacao.prop_id             > propriedade.prop_id
+
+Ref: mensagem.remetente_cpf        > usuario.cpf
+Ref: mensagem.destinatario_cpf     > usuario.cpf
+Ref: mensagem.aval_id               > avaliacao.aval_id
+Ref: foto.avaliacao_id             > avaliacao.aval_id
