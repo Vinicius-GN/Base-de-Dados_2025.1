@@ -1,87 +1,92 @@
 Table usuario {
-  cpf               varchar   [pk]
-  nome              varchar
-  sobrenome         varchar
-  data_nascimento   date
-  endereco          varchar
-  sexo              varchar
-  telefone          varchar
-  email             varchar
-  senha             varchar
-  loc_id            int
+  cpf               varchar   [pk, not null]
+  nome              varchar   [not null]
+  sobrenome         varchar   [not null]
+  data_nascimento   date      [not null]
+  endereco          varchar   [not null]
+  sexo              varchar   [not null]
+  telefone          varchar   [not null, unique]
+  email             varchar   [not null, unique]
+  senha             varchar   [not null]
+  tipo              tipo_usuario [not null]
+  loc_id            int       [not null]
+}
+
+enum tipo_usuario {
+  hospede
+  locador
 }
 
 Table localizacao {
-  loc_id    int      [pk, increment]
-  cidade    varchar
-  estado    varchar
-  pais      varchar
-  cep       varchar
+  id    int      [pk, increment, not null]
+  cidade    varchar [not null]
+  estado    varchar [not null]
+  pais      varchar [not null]
+  cep       varchar [not null]
   bairro    varchar
 }
 
 Table ponto_interesse {
-  poi_id   int      [pk, increment]
-  nome     varchar
-  loc_id   int
+  id  int [pk, increment, not null]
+  descricao varchar
+  loc_id int [not null]
 }
 
 Table locador {
-  cpf      varchar   [pk]      // herda de usuario
+  cpf      varchar   [pk, not null]      // herda de usuario
 }
 
 Table hospede {
-  cpf      varchar   [pk]      // herda de usuario
+  cpf      varchar   [pk, not null]      // herda de usuario
 }
 
 Table conta_bancaria {
-  numero_conta   varchar   [pk]
-  agencia        varchar
-  tipo_conta     varchar
-  locador_cpf    varchar
+  numero_conta   varchar   [pk, not null]
+  agencia        varchar [not null]
+  tipo_conta     varchar [not null]
+  locador_cpf    varchar [not null]
 }
 
 Table propriedade {
-  prop_id         int       [pk, increment]
-  nome            varchar
-  endereco        varchar
-  tipo            varchar   // 'CasaInteira' | 'QuartoPrivativo' | 'QuartoCompartilhado'
-  num_quartos     int
-  num_banheiros   int
-  preco_noite     decimal
-  max_hospedes    int
-  min_noites      int
-  max_noites      int
+  id         int       [pk, increment, not null]
+  nome            varchar [not null]
+  endereco        varchar [not null]
+  tipo            tipo_propriedade [not null]
+  num_quartos     int [not null]
+  num_banheiros   int [not null]
+  preco_noite     decimal [not null]
+  max_hospedes    int [not null]
+  min_noites      int [not null]
+  max_noites      int [not null]
   taxa_limpeza    decimal
   checkin_hora    time
   checkout_hora   time
-  locador_cpf     varchar
-  loc_id          int
+  locador_cpf     varchar [not null]
+  loc_id          int [not null]
 }
 
-Table disponibilidade {
-  disp_id     int      [pk, increment]
-  prop_id     int
-  data_inicio date
-  data_fim    date
+enum tipo_propriedade {
+  casa_inteira
+  quarto_privativo
+  quarto_compartilhado
 }
 
 Table quarto {
-  quarto_id          int      [pk, increment]
-  prop_id            int
-  num_camas          int
-  tipo_cama          varchar
-  banheiro_privativo boolean
+  id          int      [pk, increment, not null]
+  prop_id            int [not null]
+  num_camas          int [not null]
+  tipo_cama          varchar [not null]
+  banheiro_privativo boolean [not null]
 }
 
 Table comodidade {
-  comod_id   int     [pk, increment]
+  id   int     [pk, increment, not null]
   descricao  varchar
 }
 
 Table propriedade_comodidade {
-  prop_id   int
-  comod_id  int
+  prop_id   int [not null]
+  comod_id  int [not null]
 
   Indexes {
     (prop_id, comod_id) [pk]
@@ -89,13 +94,13 @@ Table propriedade_comodidade {
 }
 
 Table regra {
-  regra_id   int     [pk, increment]
+  id   int     [pk, increment, not null]
   descricao  varchar
 }
 
 Table propriedade_regra {
-  prop_id   int
-  regra_id  int
+  prop_id   int [not null]
+  regra_id  int [not null]
 
   Indexes {
     (prop_id, regra_id) [pk]
@@ -103,27 +108,33 @@ Table propriedade_regra {
 }
 
 Table reserva {
-  res_id                   int      [pk, increment]
-  hospede_cpf              varchar
-  prop_id                  int
-  data_reserva             date
-  data_checkin             date
-  data_checkout            date
-  num_hospedes             int
+  id                   int      [pk, increment, not null]
+  hospede_cpf              varchar [not null]
+  prop_id                  int [not null]
+  data_reserva             date [not null]
+  data_checkin             date [not null]
+  data_checkout            date [not null]
+  num_hospedes             int [not null]
   imposto_pago             decimal
   preco_total              decimal
   preco_total_impostos     decimal
   taxa_limpeza             decimal
-  status                   varchar  // 'Confirmada' | 'Cancelada'
-  data_status              date
+  status                   status_reserva [not null]
+  status_data  datetime [default: `now()`]
+}
+
+enum status_reserva {
+  pendente [note: 'Esperando atualização']
+  confirmada
+  cancelada
 }
 
 Table avaliacao {
-  aval_id           int       [pk, increment]
+  id           int       [pk, increment, not null]
   reserva_id        int
-  hospede_cpf       varchar
-  prop_id           int
-  texto             varchar
+  hospede_cpf       varchar [not null]
+  prop_id           int   [not null]
+  texto             varchar [not null]
   nota_limpeza      int
   nota_estrutura    int
   nota_comunicacao  int
@@ -131,50 +142,61 @@ Table avaliacao {
   nota_valor        int
 }
 
-Table mensagem {
-  msg_id             int      [pk, increment]
-  remetente_cpf      varchar
-  destinatario_cpf   varchar
-  ts                 datetime
-  texto              varchar
-  aval_id           int       // FK para a avaliação associada, se houver
+Table mensagem_aval {
+  id             int      [pk, increment, not null]
+  remetente_cpf      varchar [not null]
+  destinatario_cpf   varchar [not null]
+  ts                 datetime [default: `now()`]
+  texto              varchar [not null]
+  aval_id           int    [not null]   // FK para a avaliação associada, se houver
 }
 
-
 Table foto {
-  foto_id           int       [pk, increment]
-  url               varchar
-  avaliacao_id      int       // FK para a avaliação que “inclui” esta foto
+  id           int       [pk, increment, not null]
+  url          varchar  [not null]
+  aval_id      int     [not null]   // FK para a avaliação que “inclui” esta foto
+}
+
+Table mensagem_chat {
+  id                int [pk, not null]
+  remetente_cpf     varchar [not null]
+  destinatario_cpf  varchar [not null]
+  ts                datetime [default: `now()`]
+  texto             varchar [not null]
 }
 
 // —–– Relações (FKs) ——————————————————————————————————————————————————————————————————
 
-Ref: usuario.loc_id                > localizacao.loc_id
-Ref: ponto_interesse.loc_id        > localizacao.loc_id
+Ref: usuario.loc_id                - localizacao.id
+Ref: propriedade.loc_id            - localizacao.id
 
-Ref: locador.cpf                   > usuario.cpf
-Ref: hospede.cpf                   > usuario.cpf
+Ref: ponto_interesse.loc_id        > localizacao.id
+
+Ref: locador.cpf                   - usuario.cpf
+Ref: hospede.cpf                   - usuario.cpf
 
 Ref: propriedade.locador_cpf       > locador.cpf
-Ref: conta_bancaria.locador_cpf    > locador.cpf
+Ref: conta_bancaria.locador_cpf    - locador.cpf
 
-Ref: propriedade.prop_id           > disponibilidade.prop_id
-Ref: propriedade.prop_id           > quarto.prop_id
+Ref: propriedade.id           < quarto.prop_id
 
-Ref: propriedade_comodidade.prop_id > propriedade.prop_id
-Ref: propriedade_comodidade.comod_id > comodidade.comod_id
+Ref: propriedade_comodidade.prop_id - propriedade.id
+Ref: propriedade_comodidade.comod_id - comodidade.id
 
-Ref: propriedade_regra.prop_id     > propriedade.prop_id
-Ref: propriedade_regra.regra_id    > regra.regra_id
+Ref: propriedade_regra.prop_id     - propriedade.id
+Ref: propriedade_regra.regra_id    - regra.id
 
 Ref: reserva.hospede_cpf           > hospede.cpf
-Ref: reserva.prop_id               > propriedade.prop_id
+Ref: reserva.prop_id               > propriedade.id
 
-Ref: avaliacao.reserva_id          > reserva.res_id
+Ref: avaliacao.reserva_id          - reserva.id
 Ref: avaliacao.hospede_cpf         > hospede.cpf
-Ref: avaliacao.prop_id             > propriedade.prop_id
+Ref: avaliacao.prop_id             > propriedade.id
 
-Ref: mensagem.remetente_cpf        > usuario.cpf
-Ref: mensagem.destinatario_cpf     > usuario.cpf
-Ref: mensagem.aval_id               > avaliacao.aval_id
-Ref: foto.avaliacao_id             > avaliacao.aval_id
+Ref: mensagem_aval.remetente_cpf        > usuario.cpf
+Ref: mensagem_aval.destinatario_cpf     > usuario.cpf
+Ref: mensagem_aval.aval_id              > avaliacao.id
+Ref: foto.aval_id                       > avaliacao.id
+
+Ref: mensagem_chat.remetente_cpf        > usuario.cpf
+Ref: mensagem_chat.destinatario_cpf     > usuario.cpf
