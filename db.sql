@@ -52,6 +52,7 @@ NO CYCLE;
 
 ------ SEQUENCES END --------
 
+DROP TABLE IF EXISTS localizacao CASCADE;
 CREATE TABLE localizacao (
   id INT PRIMARY KEY DEFAULT NEXTVAL('seq_localizacao_id'),
   cidade varchar NOT NULL,
@@ -61,6 +62,7 @@ CREATE TABLE localizacao (
   bairro varchar
 );
 
+DROP TABLE IF EXISTS usuario CASCADE;
 CREATE TABLE usuario (
   cpf varchar PRIMARY KEY,
   nome varchar NOT NULL,
@@ -79,6 +81,7 @@ CREATE TABLE usuario (
   FOREIGN KEY (loc_id) REFERENCES localizacao (id)
 );
 
+DROP TABLE IF EXISTS ponto_interesse CASCADE;
 CREATE TABLE ponto_interesse (
   id INT PRIMARY KEY DEFAULT NEXTVAL('seq_pontointeresse_id'), 
   descricao varchar,
@@ -86,16 +89,19 @@ CREATE TABLE ponto_interesse (
   FOREIGN KEY (loc_id) REFERENCES localizacao (id)
 );
 
+DROP TABLE IF EXISTS locador CASCADE;
 CREATE TABLE locador (
   cpf varchar PRIMARY KEY,
   FOREIGN KEY (cpf) REFERENCES usuario (cpf)
 );
 
+DROP TABLE IF EXISTS hospede CASCADE;
 CREATE TABLE hospede (
   cpf varchar PRIMARY KEY,
   FOREIGN KEY (cpf) REFERENCES usuario (cpf)
 );
 
+DROP TABLE IF EXISTS conta_bancaria CASCADE;
 CREATE TABLE conta_bancaria (
   numero_conta varchar PRIMARY KEY,
   agencia varchar NOT NULL,
@@ -104,6 +110,7 @@ CREATE TABLE conta_bancaria (
   FOREIGN KEY (locador_cpf) REFERENCES locador (cpf)
 );
 
+DROP TABLE IF EXISTS propriedade CASCADE;
 CREATE TABLE propriedade (
   id INT PRIMARY KEY DEFAULT NEXTVAL('seq_propriedade_id'),
   nome varchar NOT NULL,
@@ -127,6 +134,7 @@ CREATE TABLE propriedade (
   FOREIGN KEY (loc_id) REFERENCES localizacao (id)
 );
 
+DROP TABLE IF EXISTS quarto CASCADE;
 CREATE TABLE quarto (
   id INT PRIMARY KEY DEFAULT NEXTVAL('seq_quarto_id'),
   prop_id int NOT NULL,
@@ -136,11 +144,13 @@ CREATE TABLE quarto (
   FOREIGN KEY (prop_id) REFERENCES propriedade (id)
 );
 
+DROP TABLE IF EXISTS comodidade CASCADE;
 CREATE TABLE comodidade (
   id INT PRIMARY KEY DEFAULT NEXTVAL('seq_comodidade_id'),
   descricao varchar
 );
 
+DROP TABLE IF EXISTS propriedade_comodidade CASCADE;
 CREATE TABLE propriedade_comodidade (
   prop_id int NOT NULL,
   comod_id int NOT NULL,
@@ -149,11 +159,13 @@ CREATE TABLE propriedade_comodidade (
   FOREIGN KEY (comod_id) REFERENCES comodidade (id)
 );
 
+DROP TABLE IF EXISTS regra CASCADE;
 CREATE TABLE regra (
   id INT PRIMARY KEY DEFAULT NEXTVAL('seq_regra_id'),
   descricao varchar
 );
 
+DROP TABLE IF EXISTS propriedade_regra CASCADE;
 CREATE TABLE propriedade_regra (
   prop_id int NOT NULL,
   regra_id int NOT NULL,
@@ -162,6 +174,7 @@ CREATE TABLE propriedade_regra (
   FOREIGN KEY (regra_id) REFERENCES regra (id)
 );
 
+DROP TABLE IF EXISTS reserva CASCADE;
 CREATE TABLE reserva (
   id INT PRIMARY KEY DEFAULT NEXTVAL('seq_reserva_id'),
   hospede_cpf varchar NOT NULL,
@@ -184,6 +197,7 @@ CREATE TABLE reserva (
   CHECK (status_data IS NULL OR status_data < data_checkin)
 );
 
+DROP TABLE IF EXISTS avaliacao CASCADE;
 CREATE TABLE avaliacao (
   id INT PRIMARY KEY DEFAULT NEXTVAL('seq_avaliacao_id'),
   reserva_id int,
@@ -200,6 +214,7 @@ CREATE TABLE avaliacao (
   FOREIGN KEY (prop_id) REFERENCES propriedade (id)
 );
 
+DROP TABLE IF EXISTS mensagem_aval CASCADE;
 CREATE TABLE mensagem_aval (
   id INT PRIMARY KEY DEFAULT NEXTVAL('seq_mensagemaval_id'),
   remetente_cpf varchar NOT NULL,
@@ -212,6 +227,7 @@ CREATE TABLE mensagem_aval (
   FOREIGN KEY (aval_id) REFERENCES avaliacao (id)
 );
 
+DROP TABLE IF EXISTS foto CASCADE;
 CREATE TABLE foto (
   id INT PRIMARY KEY DEFAULT NEXTVAL('seq_foto_id'),
   url varchar NOT NULL,
@@ -219,6 +235,7 @@ CREATE TABLE foto (
   FOREIGN KEY (aval_id) REFERENCES avaliacao (id)
 );
 
+DROP TABLE IF EXISTS mensagem_chat CASCADE;
 CREATE TABLE mensagem_chat (
   id int PRIMARY KEY,
   remetente_cpf varchar NOT NULL,
