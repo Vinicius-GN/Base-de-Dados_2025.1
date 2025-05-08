@@ -1,3 +1,23 @@
+-- Truncate all tables
+DO
+$$
+DECLARE
+  t RECORD;
+BEGIN
+  FOR t IN
+    SELECT tablename
+    FROM pg_tables
+    WHERE schemaname = 'public'
+  LOOP
+    EXECUTE format(
+      'TRUNCATE TABLE %I.%I RESTART IDENTITY CASCADE;',
+      'public',
+      t.tablename
+    );
+  END LOOP;
+END
+$$;
+
 -- Populate non-relationship tables with at least 15 rows each
 
 -- 1. localizacao
