@@ -73,23 +73,23 @@ ORDER BY total_gasto DESC;
 SELECT
     a.prop_id,
     p.nome,
-    ROUND((
-        a.nota_limpeza + a.nota_estrutura + a.nota_comunicacao + a.nota_localizacao + a.nota_valor
-    ) / 5.0, 2) AS media_avaliacao
+    ROUND(AVG((a.nota_limpeza + a.nota_estrutura + a.nota_comunicacao + a.nota_localizacao + a.nota_valor) / 5.0), 2) AS media_avaliacao
 FROM avaliacao a
 JOIN propriedade p ON a.prop_id = p.id
+GROUP BY a.prop_id, p.nome
 ORDER BY media_avaliacao DESC;
+
 
 -- Liste os locadores que nunca receberam uma avaliação.
 SELECT 
     u.cpf, u.nome
 FROM usuario u
 JOIN locador l ON l.cpf = u.cpf
-JOIN propriedade p ON p.locador_cpf = l.cpf
 WHERE NOT EXISTS (
     SELECT 1
-    FROM avaliacao a
-    WHERE a.prop_id = p.id
+    FROM propriedade p
+    JOIN avaliacao a ON a.prop_id = p.id
+    WHERE p.locador_cpf = l.cpf
 );
 
 -- Usuário que é Locatario e Anfitriao ao mesmo tempo
@@ -115,8 +115,8 @@ ORDER  BY mes;
 SELECT DISTINCT hu.cpf, hu.nome, hu.data_nascimento
 FROM   hospede h
 JOIN   usuario hu ON hu.cpf = h.cpf
-WHERE  hu.data_nascimento >                -- data_nasc “maior” = mais jovem
-       (SELECT MIN(u2.data_nascimento)
+WHERE  hu.data_nascimento >                
+       (SELECT MIN(u2.data_nascimento) -- Escolhe o locador mais velho e vê quais hospedes são mais novos
         FROM   locador l2
         JOIN   usuario u2 ON u2.cpf = l2.cpf);
 
@@ -125,7 +125,7 @@ WHERE  hu.data_nascimento >                -- data_nasc “maior” = mais jovem
 SELECT DISTINCT hu.cpf, hu.nome, hu.data_nascimento
 FROM   hospede h
 JOIN   usuario hu ON hu.cpf = h.cpf
-WHERE  hu.data_nascimento >                -- mais jovem do que o MAIS jovem anfitrião
-       (SELECT MAX(u2.data_nascimento)
+WHERE  hu.data_nascimento >                
+       (SELECT MAX(u2.data_nascimento) -- Escolhe os hóspedes mais jovem do que o mais jovem anfitrião
         FROM   locador l2
         JOIN   usuario u2 ON u2.cpf = l2.cpf);
