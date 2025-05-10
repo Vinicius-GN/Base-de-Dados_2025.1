@@ -1,6 +1,6 @@
 SET session_replication_role = 'replica';
 
--- Truncate all tables
+-- Truncar todas as tabelas
 DO
 $$
 DECLARE
@@ -20,7 +20,7 @@ BEGIN
 END
 $$;
 
--- Reset sequence values
+-- Resetar sequências
 ALTER SEQUENCE seq_localizacao_id RESTART WITH 1;
 ALTER SEQUENCE seq_pontointeresse_id RESTART WITH 1;
 ALTER SEQUENCE seq_propriedade_id RESTART WITH 1;
@@ -32,7 +32,7 @@ ALTER SEQUENCE seq_avaliacao_id RESTART WITH 1;
 ALTER SEQUENCE seq_mensagemaval_id RESTART WITH 1;
 ALTER SEQUENCE seq_foto_id RESTART WITH 1;
 
--- Populate non-relationship tables with at least 15 rows each
+-- Popular tabelas não-relacionais com pelo menos 15 linhas cada
 
 -- 1. localizacao
 INSERT INTO localizacao (cidade, estado, pais, cep, bairro)
@@ -53,7 +53,7 @@ VALUES
   ('Tokyo', 'Tokyo', 'Japan', '100-0001', 'Chiyoda'),
   ('Lisboa', 'Lisboa', 'Portugal', '1000-001', 'Baixa');
 
--- 2. usuario (15 users alternating types)
+-- 2. usuario (15 usuários alternando tipos)
 INSERT INTO usuario (cpf, nome, sobrenome, data_nascimento, endereco, sexo, telefone, email, senha, tipo, loc_id)
 VALUES
   ('12345678901', 'Pedro', 'Santos', '1990-05-15', 'Rua Augusta, 789', 'M', '11987654321', 'pedro.santos@email.com', 'senha123', 'locador', 1),
@@ -65,22 +65,28 @@ VALUES
   ('78901234567', 'Rafael', 'Almeida', '1983-06-07', 'Rua da Praia, 456', 'M', '51987654324', 'rafael.almeida@email.com', 'senha147', 'locador', 7),
   ('89012345678', 'Beatriz', 'Martins', '1993-04-12', 'Av. Atlântica, 789', 'F', '21976543213', 'beatriz.martins@email.com', 'senha258', 'hospede', 8),
   ('90123456789', 'Fernando', 'Pereira', '1989-08-20', 'Rua XV, 1011', 'M', '41987654325', 'fernando.pereira@email.com', 'senha369', 'locador', 9),
-  ('01234567890', 'Carolina', 'Souza', '1991-12-05', 'Av. Brasil, 1213', 'F', '61976543214', 'carolina.souza@email.com', 'senha741', 'hospede', 10),
+  ('01234567890', 'Carolina', 'Souza', '2005-12-05', 'Av. Brasil, 1213', 'F', '61976543214', 'carolina.souza@email.com', 'senha741', 'hospede', 10),
   ('12345098765', 'Gabriel', 'Carvalho', '1986-10-28', 'Rua das Palmeiras, 1415', 'M', '11987654326', 'gabriel.carvalho@email.com', 'senha852', 'locador', 11),
   ('23450987654', 'Mariana', 'Ribeiro', '1994-01-15', 'Av. Central, 1617', 'F', '21976543215', 'mariana.ribeiro@email.com', 'senha963', 'hospede', 12),
   ('34509876543', 'Ricardo', 'Gomes', '1984-03-08', 'Rua do Sol, 1819', 'M', '81987654327', 'ricardo.gomes@email.com', 'senha159', 'locador', 13),
-  ('45098765432', 'Amanda', 'Silva', '1996-07-22', 'Av. Principal, 2021', 'F', '31976543216', 'amanda.silva@email.com', 'senha357', 'hospede', 14),
+  ('45098765432', 'Amanda', 'Silva', '1991-07-22', 'Av. Principal, 2021', 'F', '31976543216', 'amanda.silva@email.com', 'senha357', 'hospede', 14),
   ('50987654321', 'Thiago', 'Santos', '1988-05-17', 'Rua da Lua, 2223', 'M', '11987654328', 'thiago.santos@email.com', 'senha456', 'locador', 15);
-
--- 3. locador (all users with tipo = 'locador')
+  
+-- 3. locador (todos os usuários com tipo = 'locador')
 INSERT INTO locador (cpf)
 SELECT cpf FROM usuario WHERE tipo = 'locador';
 
--- 4. hospede (all users with tipo = 'hospede')
+-- Inserção manual de usuários hóspedes e locadores
+INSERT INTO locador (cpf)
+VALUES 
+  ('23456789012'), 
+  ('45098765432');
+
+-- 4. hospede (todos os usuários com tipo = 'hospede')
 INSERT INTO hospede (cpf)
 SELECT cpf FROM usuario WHERE tipo = 'hospede';
 
--- 5. conta_bancaria (one account per locador)
+-- 5. conta_bancaria (uma conta para cada locador)
 INSERT INTO conta_bancaria (numero_conta, agencia, tipo_conta, locador_cpf)
 VALUES
   ('12345-6', '1234', 'corrente', '12345678901'),  -- Pedro Santos
@@ -92,7 +98,7 @@ VALUES
   ('95175-7', '7890', 'corrente', '34509876543'),  -- Ricardo Gomes
   ('75395-1', '8901', 'poupanca', '50987654321');  -- Thiago Santos
 
--- 6. ponto_interesse (15 points)
+-- 6. ponto_interesse (15 pontos)
 INSERT INTO ponto_interesse (descricao, loc_id)
 VALUES
   ('Parque Ibirapuera', 1),                    -- São Paulo
@@ -111,7 +117,10 @@ VALUES
   ('Templo Senso-ji', 14),                     -- Tokyo
   ('Torre de Belém', 15);                      -- Lisboa
 
--- 7. propriedade (15 properties)
+
+  
+
+-- 7. propriedade (15 propriedades)
 INSERT INTO propriedade (nome, endereco, tipo, num_quartos, num_banheiros, preco_noite, max_hospedes, min_noites, max_noites, taxa_limpeza, checkin_hora, checkout_hora, locador_cpf, loc_id)
 VALUES
   ('Apartamento Vila Olímpia', 'Rua Gomes de Carvalho 1200', 'casa_inteira', 3, 2, 450, 6, 2, 14, 150, '15:00', '11:00', '12345678901', 1),
@@ -127,7 +136,12 @@ VALUES
   ('Studio Le Marais', 'Rue des Rosiers 45', 'quarto_privativo', 1, 1, 300, 2, 2, 7, 100, '15:00', '11:00', '78901234567', 12),
   ('Westminster Flat', 'Baker Street 221B', 'casa_inteira', 3, 2, 700, 6, 2, 10, 200, '14:00', '12:00', '90123456789', 13),
   ('Chiyoda Apartment', 'Chiyoda-ku 1-1', 'quarto_privativo', 1, 1, 250, 2, 1, 7, 90, '15:00', '11:00', '12345098765', 14),
-  ('Apartamento Baixa', 'Rua Augusta 100', 'casa_inteira', 2, 1, 280, 4, 2, 14, 100, '14:00', '12:00', '34509876543', 15);
+  ('Apartamento Baixa', 'Rua Augusta 100', 'casa_inteira', 2, 1, 280, 4, 2, 14, 100, '14:00', '12:00', '34509876543', 15),
+  -- 7.1  Novas PROPRIEDADES com campos NULL
+  ('Cabana Vista Serra', 'Estr. Alto da Serra, 100', 'casa_inteira', 2, 1, 320, 4, 2, 10, NULL, '16:00', NULL,'90123456789', 1),
+  ('Quarto Centro Velho', 'Rua Antiga 12', 'quarto_privativo', 1, 1, 110, 2, 1, 5, 50, NULL, '11:00', '90123456789', 1);
+
+
 
 -- 8. quarto (quartos para todas as propriedades)
 INSERT INTO quarto (prop_id, num_camas, tipo_cama, banheiro_privativo)
@@ -188,9 +202,16 @@ VALUES
 
   -- Apartamento Baixa (2 quartos)
   (15, 1, 'casal', true),       -- quarto principal
-  (15, 2, 'solteiro', false);   -- segundo quarto
+  (15, 2, 'solteiro', false),   -- segundo quarto
 
--- 9. comodidade (15 amenities)
+  -- Cabana Vista Serra
+  (16, 1, 'casal', true),       -- quarto único
+  (16, 2, 'solteiro', false),   -- segundo quarto
+
+  -- Quarto Centro Velho
+  (17, 1, 'casal', true);        -- quarto principal
+
+-- 9. comodidade (15 comodidades diferentes)
 INSERT INTO comodidade (descricao)
 VALUES
   ('Wi-Fi de alta velocidade'),
@@ -228,7 +249,7 @@ VALUES
   ('Proibido alterar móveis de lugar'),
   ('Respeitar normas do condomínio');
 
--- Populate relationship tables with sufficient tuples
+-- Popular relacionamento com tuplas suficientes
 
 -- propriedade_comodidade (cada propriedade recebe entre 3 e 8 comodidades aleatórias)
 INSERT INTO propriedade_comodidade (prop_id, comod_id)
@@ -336,7 +357,24 @@ VALUES
   (15, 2), -- Ar condicionado
   (15, 3), -- TV Smart
   (15, 4), -- Cozinha completa
-  (15, 13);-- Elevador
+  (15, 13),-- Elevador
+
+  -- Cabana Vista Serra
+  (16, 1), -- Wi-Fi 
+  (16, 2), -- Ar condicionado
+  (16, 4), -- Cozinha completa
+  (16, 5), -- Máquina de lavar
+  (16, 6), -- Piscina
+  (16, 7), -- Academia
+  (16, 8), -- Estacionamento gratuito
+
+  -- Quarto Centro Velho
+  (17, 1), -- Wi-Fi 
+  (17, 2), -- Ar condicionado
+  (17, 3), -- TV Smart
+  (17, 4), -- Cozinha completa
+  (17, 5), -- Máquina de lavar
+  (17, 6); -- Piscina;
 
 -- propriedade_regra (cada propriedade recebe um conjunto apropriado de regras)
 INSERT INTO propriedade_regra (prop_id, regra_id)
@@ -420,9 +458,21 @@ VALUES
   (15, 1), -- Não fumar
   (15, 5), -- Sem festas
   (15, 12),-- Caução
-  (15, 15);-- Normas condomínio
+  (15, 15),-- Normas condomínio
 
--- Populate resto das não-relacionamento com pelo menos 15 tuplas
+  -- Cabana Vista Serra
+  (16, 1), -- Não fumar
+  (16, 2), -- Sem pets
+  (16, 5), -- Proibido festas ou eventos
+  (16, 6), -- Silêncio noturno
+
+  -- Quarto Centro Velho
+  (17, 1), -- Não fumar
+  (17, 2), -- Sem pets
+  (17, 5), -- Proibido festas ou eventos
+  (17, 6); -- Silêncio noturno
+
+-- Populate resto das não-relacionais com pelo menos 15 tuplas
 
 -- 11. reserva (15 bookings)
 INSERT INTO reserva (hospede_cpf, prop_id, data_reserva, data_checkin, data_checkout, num_hospedes, imposto_pago, preco_total, preco_total_impostos, taxa_limpeza, status, status_data)
@@ -431,16 +481,20 @@ VALUES
   ('23456789012', 1, '2023-12-01', '2023-12-15', '2023-12-20', 4, 225.00, 2250.00, 2475.00, 150.00, 'confirmada', '2023-12-01 14:30:00'),
   ('45678901234', 3, '2023-12-05', '2023-12-22', '2023-12-26', 6, 300.00, 3000.00, 3300.00, 200.00, 'confirmada', '2023-12-05 10:15:00'),
   ('67890123456', 5, '2023-12-10', '2023-12-24', '2023-12-28', 3, 150.00, 1500.00, 1650.00, 120.00, 'confirmada', '2023-12-10 16:45:00'),
+  ('12345678901', 1, '2023-11-01', '2023-11-15', '2023-11-20', 4, 225.00, 2250.00, 2475.00, 150.00, 'confirmada',' 2023-11-01 09:00:00'), 
+  ('32165498700', 1, '2023-10-01', '2023-10-10', '2023-10-15', 3, 200.00, 2000.00, 2200.00, 150.00, 'confirmada', '2023-10-01 11:15:00'), 
+  ('65498732100', 1, '2023-09-05', '2023-09-20', '2023-09-25', 2, 150.00, 1500.00, 1650.00, 120.00, 'confirmada', '2023-09-05 14:45:00'), 
+  ('98765432100', 1, '2023-08-10', '2023-08-25', '2023-08-30', 5, 300.00, 3000.00, 3300.00, 200.00, 'confirmada', '2023-08-10 16:30:00'),
   
   -- Reservas confirmadas (futuras)
-  ('89012345678', 2, '2024-01-05', '2024-02-10', '2024-02-15', 2, 100.00, 1000.00, 1100.00, 80.00, 'confirmada', '2024-01-05 09:20:00'),
-  ('01234567890', 4, '2024-01-10', '2024-02-14', '2024-02-16', 1, 50.00, 500.00, 550.00, 50.00, 'confirmada', '2024-01-10 11:30:00'),
-  ('23450987654', 6, '2024-01-15', '2024-02-20', '2024-02-25', 2, 90.00, 900.00, 990.00, 70.00, 'confirmada', '2024-01-15 13:45:00'),
+  ('89012345678', 2, '2025-04-25', '2025-05-10', '2025-05-15', 2, 100.00, 1000.00, 1100.00, 80.00, 'confirmada', '2024-01-05 09:20:00'),
+  ('01234567890', 4, '2025-04-26', '2025-05-14', '2025-05-16', 1, 50.00, 500.00, 550.00, 50.00, 'confirmada', '2024-01-10 11:30:00'),
+  ('23450987654', 6, '2025-04-27', '2025-06-20', '2025-06-25', 2, 90.00, 900.00, 990.00, 70.00, 'confirmada', '2024-01-15 13:45:00'),
   
   -- Reservas pendentes
-  ('45098765432', 7, '2024-01-20', '2024-03-01', '2024-03-05', 4, 200.00, 2000.00, 2200.00, 150.00, 'pendente', '2024-01-20 15:10:00'),
-  ('23456789012', 8, '2024-01-22', '2024-03-10', '2024-03-15', 2, 110.00, 1100.00, 1210.00, 80.00, 'pendente', '2024-01-22 17:25:00'),
-  ('45678901234', 9, '2024-01-25', '2024-03-20', '2024-03-25', 3, 175.00, 1750.00, 1925.00, 130.00, 'pendente', '2024-01-25 14:50:00'),
+  ('45098765432', 7, '2025-04-20', '2025-06-01', '2025-06-05', 4, 200.00, 2000.00, 2200.00, 150.00, 'pendente', '2024-01-20 15:10:00'),
+  ('23456789012', 8, '2025-04-22', '2025-07-10', '2025-07-15', 2, 110.00, 1100.00, 1210.00, 80.00, 'pendente', '2024-01-22 17:25:00'),
+  ('45678901234', 9, '2025-04-23', '2025-08-20', '2025-08-25', 3, 175.00, 1750.00, 1925.00, 130.00, 'pendente', '2024-01-25 14:50:00'),
   
   -- Reservas canceladas
   ('67890123456', 10, '2023-12-15', '2024-01-05', '2024-01-10', 1, 60.00, 600.00, 660.00, 50.00, 'cancelada', '2023-12-20 10:30:00'),
@@ -453,27 +507,29 @@ VALUES
   ('23456789012', 15, '2024-01-12', '2024-02-25', '2024-03-01', 3, 140.00, 1400.00, 1540.00, 100.00, 'confirmada', '2024-01-12 15:55:00');
 
 -- 12. avaliacao (12 reviews)
+-- 12. avaliacao (12 reviews)
 INSERT INTO avaliacao (reserva_id, hospede_cpf, prop_id, texto, nota_limpeza, nota_estrutura, nota_comunicacao, nota_localizacao, nota_valor)
 SELECT
   i,
-  (SELECT reserva.hospede_cpf FROM reserva WHERE reserva.id = i),
-  (SELECT reserva.prop_id   FROM reserva WHERE reserva.id = i),
-  CASE i
-    WHEN 1 THEN 'Ótimo apartamento, muito bem localizado. Limpeza impecável e boa comunicação com o anfitrião.'
-    WHEN 2 THEN 'Casa espaçosa e confortável. Alguns detalhes de manutenção precisam ser revistos, mas no geral foi uma boa experiência.'
-    WHEN 3 THEN 'Flat muito aconchegante, adorei a estadia. Localização excelente e preço justo.'
-    WHEN 4 THEN 'Quarto pequeno mas confortável. Ótimo custo-benefício para viagens curtas.'
-    WHEN 5 THEN 'Apartamento incrível, vista maravilhosa. Vale cada centavo!'
-    WHEN 6 THEN 'Estadia agradável, anfitrião muito atencioso. Voltaria com certeza.'
-    WHEN 7 THEN 'Localização privilegiada, estrutura completa. Recomendo fortemente.'
-    WHEN 8 THEN 'Boa experiência no geral. Alguns problemas com o Wi-Fi, mas o resto foi ótimo.'
-    WHEN 9 THEN 'Apartamento bem equipado e limpo. Comunicação rápida e eficiente.'
-    WHEN 10 THEN 'Excelente localização, próximo a tudo. Estrutura um pouco antiga mas bem conservada.'
-    WHEN 11 THEN 'Vista incrível, apartamento luxuoso. Vale o investimento!'
-    WHEN 12 THEN 'Studio charmoso e bem localizado. Único problema foi o barulho da rua.'
-    WHEN 13 THEN 'Flat espaçoso e bem decorado. Ótima experiência.'
-    WHEN 14 THEN 'Localização perfeita, apartamento clean e moderno.'
-    WHEN 15 THEN 'Ótima experiência, anfitrião muito prestativo. Recomendo!'
+  (SELECT reserva.hospede_cpf FROM reserva WHERE reserva.id = i AND reserva.status = 'confirmada'),
+  (SELECT reserva.prop_id FROM reserva WHERE reserva.id = i AND reserva.status = 'confirmada'),
+  CASE 
+    WHEN i = 1 THEN 'Ótimo apartamento, muito bem localizado. Limpeza impecável e boa comunicação com o anfitrião.'
+    WHEN i = 2 THEN 'Casa espaçosa e confortável. Alguns detalhes de manutenção precisam ser revistos, mas no geral foi uma boa experiência.'
+    WHEN i = 3 THEN 'Flat muito aconchegante, adorei a estadia. Localização excelente e preço justo.'
+    WHEN i = 4 THEN 'Quarto pequeno mas confortável. Ótimo custo-benefício para viagens curtas.'
+    WHEN i = 5 THEN 'Apartamento incrível, vista maravilhosa. Vale cada centavo!'
+    WHEN i = 6 THEN 'Estadia agradável, anfitrião muito atencioso. Voltaria com certeza.'
+    WHEN i = 7 THEN 'Localização privilegiada, estrutura completa. Recomendo fortemente.'
+    WHEN i = 8 THEN 'Boa experiência no geral. Alguns problemas com o Wi-Fi, mas o resto foi ótimo.'
+    WHEN i = 9 THEN 'Apartamento bem equipado e limpo. Comunicação rápida e eficiente.'
+    WHEN i = 10 THEN 'Excelente localização, próximo a tudo. Estrutura um pouco antiga mas bem conservada.'
+    WHEN i = 11 THEN 'Vista incrível, apartamento luxuoso. Vale o investimento!'
+    WHEN i = 12 THEN 'Studio charmoso e bem localizado. Único problema foi o barulho da rua.'
+    WHEN i = 13 THEN 'Flat espaçoso e bem decorado. Ótima experiência.'
+    WHEN i = 14 THEN 'Localização perfeita, apartamento clean e moderno.'
+    WHEN i = 15 THEN 'Ótima experiência, anfitrião muito prestativo. Recomendo!'
+    ELSE 'Avaliação padrão' -- Garante que texto nunca será NULL
   END,
   CASE i
     WHEN 2 THEN 3  -- avaliação mais baixa para limpeza
@@ -499,7 +555,11 @@ SELECT
     ELSE 4         -- bom valor para o resto
   END
 FROM generate_series(1,15) AS s(i)
-WHERE i IN (1, 4, 5, 6, 7, 8, 9, 10, 11, 12);  -- apenas algumas reservas têm avaliações
+WHERE i IN (
+  SELECT id 
+  FROM reserva 
+  WHERE status = 'confirmada' -- Filtra apenas reservas confirmadas
+);
 
 -- 13. mensagem_aval (12 messages about reviews)
 INSERT INTO mensagem_aval (remetente_cpf, destinatario_cpf, ts, texto, aval_id)
@@ -525,10 +585,8 @@ VALUES
 
 -- 14. foto (15 photos linked to reviews)
 INSERT INTO foto (url, aval_id)
-SELECT
-  'https://exemplo.com/foto_' || i || '.jpg',
-  ((i - 1) % 12) + 1
-FROM generate_series(1,12) AS s(i);
+SELECT 'https://exemplo.com/foto_' || id || '.jpg', id
+FROM avaliacao;
 
 -- 15. mensagem_chat (15 chat messages)
 INSERT INTO mensagem_chat (id, remetente_cpf, destinatario_cpf, ts, texto)

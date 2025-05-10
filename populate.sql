@@ -90,8 +90,8 @@ SELECT
   TIME '14:00',
   TIME '11:00',
   (SELECT cpf FROM locador ORDER BY RANDOM() LIMIT 1),
-  ((i - 1) % 15) + 1
-FROM generate_series(1,15) AS s(i);
+  ((i - 1) % 17) + 1
+FROM generate_series(1,17) AS s(i);
 
 -- 8. quarto (15 rooms)
 INSERT INTO quarto (prop_id, num_camas, tipo_cama, banheiro_privativo)

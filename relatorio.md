@@ -78,7 +78,7 @@ Relaciona a tabela propriedade com localizacao e agrupa por cidade, contando o n
 
 ---
 
-### 4. Locações confirmadas a partir de 01/01/2024
+### 4. Locações confirmadas a partir de 24/04/2025
 
 Seleciona reservas com status confirmada cuja data de check-in é posterior a 01/01/2024. Também calcula o total de dias locados e exibe informações do hóspede, locador e valor da diária.
 
