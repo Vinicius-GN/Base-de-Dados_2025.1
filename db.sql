@@ -85,8 +85,10 @@ DROP TABLE IF EXISTS ponto_interesse CASCADE;
 CREATE TABLE ponto_interesse (
   id INT PRIMARY KEY DEFAULT NEXTVAL('seq_pontointeresse_id'), 
   descricao varchar,
-  loc_id int NOT NULL,
+  loc_id int NOT NULL,  
   FOREIGN KEY (loc_id) REFERENCES localizacao (id)
+    ON UPDATE CASCADE 
+    ON DELETE CASCADE
 );
 
 DROP TABLE IF EXISTS locador CASCADE;
@@ -132,6 +134,7 @@ CREATE TABLE propriedade (
   loc_id int NOT NULL,
   FOREIGN KEY (locador_cpf) REFERENCES locador (cpf),
   FOREIGN KEY (loc_id) REFERENCES localizacao (id)
+    ON UPDATE CASCADE
 );
 
 DROP TABLE IF EXISTS quarto CASCADE;
@@ -142,6 +145,8 @@ CREATE TABLE quarto (
   tipo_cama varchar NOT NULL,
   banheiro_privativo boolean NOT NULL,
   FOREIGN KEY (prop_id) REFERENCES propriedade (id)
+    ON UPDATE CASCADE 
+    ON DELETE CASCADE
 );
 
 DROP TABLE IF EXISTS comodidade CASCADE;
@@ -155,8 +160,14 @@ CREATE TABLE propriedade_comodidade (
   prop_id int NOT NULL,
   comod_id int NOT NULL,
   PRIMARY KEY (prop_id, comod_id),
-  FOREIGN KEY (prop_id) REFERENCES propriedade (id),
-  FOREIGN KEY (comod_id) REFERENCES comodidade (id)
+  
+  FOREIGN KEY (prop_id) REFERENCES propriedade (id) 
+    ON UPDATE CASCADE 
+    ON DELETE CASCADE,
+
+  FOREIGN KEY (comod_id) REFERENCES comodidade (id) 
+    ON UPDATE CASCADE 
+    ON DELETE CASCADE
 );
 
 DROP TABLE IF EXISTS regra CASCADE;
@@ -170,8 +181,12 @@ CREATE TABLE propriedade_regra (
   prop_id int NOT NULL,
   regra_id int NOT NULL,
   PRIMARY KEY (prop_id, regra_id),
-  FOREIGN KEY (prop_id) REFERENCES propriedade (id),
+  FOREIGN KEY (prop_id) REFERENCES propriedade (id)
+    ON UPDATE CASCADE 
+    ON DELETE CASCADE,
   FOREIGN KEY (regra_id) REFERENCES regra (id)
+    ON UPDATE CASCADE 
+    ON DELETE CASCADE
 );
 
 DROP TABLE IF EXISTS reserva CASCADE;
@@ -209,7 +224,8 @@ CREATE TABLE avaliacao (
   nota_comunicacao int,
   nota_localizacao int,
   nota_valor int,
-  FOREIGN KEY (reserva_id) REFERENCES reserva (id),
+  FOREIGN KEY (reserva_id) REFERENCES reserva (id)
+    ON DELETE CASCADE,
   FOREIGN KEY (hospede_cpf) REFERENCES hospede (cpf),
   FOREIGN KEY (prop_id) REFERENCES propriedade (id)
 );
@@ -225,6 +241,8 @@ CREATE TABLE mensagem_aval (
   FOREIGN KEY (remetente_cpf) REFERENCES usuario (cpf),
   FOREIGN KEY (destinatario_cpf) REFERENCES usuario (cpf),
   FOREIGN KEY (aval_id) REFERENCES avaliacao (id)
+    ON UPDATE CASCADE 
+    ON DELETE CASCADE
 );
 
 DROP TABLE IF EXISTS foto CASCADE;
@@ -233,6 +251,8 @@ CREATE TABLE foto (
   url varchar NOT NULL,
   aval_id int NOT NULL,
   FOREIGN KEY (aval_id) REFERENCES avaliacao (id)
+    ON UPDATE CASCADE 
+    ON DELETE CASCADE
 );
 
 DROP TABLE IF EXISTS mensagem_chat CASCADE;
